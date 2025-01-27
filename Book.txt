@@ -1,0 +1,192 @@
+import java.util.*;
+
+// Class to represent a Book
+class Book {
+    private int id;
+    private String title;
+    private String author;
+    private boolean isIssued;
+
+    public Book(int id, String title, String author) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.isIssued = false;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public boolean isIssued() {
+        return isIssued;
+    }
+
+    public void setIssued(boolean issued) {
+        isIssued = issued;
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", isIssued=" + isIssued +
+                '}';
+    }
+}
+
+// Class to represent a Member
+class Member {
+    private int id;
+    private String name;
+
+    public Member(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+
+// Class to represent a Transaction
+class Transaction {
+    private int bookId;
+    private int memberId;
+    private Date issueDate;
+    private Date returnDate;
+
+    public Transaction(int bookId, int memberId) {
+        this.bookId = bookId;
+        this.memberId = memberId;
+        this.issueDate = new Date();
+        this.returnDate = null;
+    }
+
+    public void returnBook() {
+        this.returnDate = new Date();
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "bookId=" + bookId +
+                ", memberId=" + memberId +
+                ", issueDate=" + issueDate +
+                ", returnDate=" + returnDate +
+                '}';
+    }
+}
+
+// Main Library Management System class
+public class LibraryManagementSystem {
+    private static List<Book> books = new ArrayList<>();
+    private static List<Member> members = new ArrayList<>();
+    private static List<Transaction> transactions = new ArrayList<>();
+
+    public static void addBook(int id, String title, String author) {
+        books.add(new Book(id, title, author));
+        System.out.println("Book added successfully.");
+    }
+
+    public static void updateBook(int id, String newTitle, String newAuthor) {
+        for (Book book : books) {
+            if (book.getId() == id) {
+                books.remove(book);
+                books.add(new Book(id, newTitle, newAuthor));
+                System.out.println("Book updated successfully.");
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+
+    public static void deleteBook(int id) {
+        books.removeIf(book -> book.getId() == id);
+        System.out.println("Book deleted successfully.");
+    }
+
+    public static void addMember(int id, String name) {
+        members.add(new Member(id, name));
+        System.out.println("Member added successfully.");
+    }
+
+    public static void deleteMember(int id) {
+        members.removeIf(member -> member.getId() == id);
+        System.out.println("Member deleted successfully.");
+    }
+
+    public static void issueBook(int bookId, int memberId) {
+        for (Book book : books) {
+            if (book.getId() == bookId) {
+                if (book.isIssued()) {
+                    System.out.println("Book is already issued.");
+                    return;
+                }
+                book.setIssued(true);
+                transactions.add(new Transaction(bookId, memberId));
+                System.out.println("Book issued successfully.");
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+
+    public static void returnBook(int bookId) {
+        for (Transaction transaction : transactions) {
+            if (transaction.toString().contains("bookId=" + bookId) && transaction.toString().contains("returnDate=null")) {
+                transaction.returnBook();
+                for (Book book : books) {
+                    if (book.getId() == bookId) {
+                        book.setIssued(false);
+                        break;
+                    }
+                }
+                System.out.println("Book returned successfully.");
+                return;
+            }
+        }
+        System.out.println("Transaction not found.");
+    }
+
+    public static void main(String[] args) {
+        // Adding sample data
+        addBook(1, "The Great Gatsby", "F. Scott Fitzgerald");
+        addBook(2, "1984", "George Orwell");
+        addMember(1, "Alice");
+        addMember(2, "Bob");
+
+        // Sample transactions
+        issueBook(1, 1);
+        issueBook(2, 2);
+        returnBook(1);
+
+        // Display books, members, and transactions
+        System.out.println("\nBooks: " + books);
+        System.out.println("Members: " + members);
+        System.out.println("Transactions: " + transactions);
+    }
+}
